@@ -6,7 +6,7 @@ source src1
 {
 	type			= mysql
 
-	sql_host		= localhost
+	sql_host		= 127.0.0.1
 	sql_user		= root
 	sql_pass		=
 	sql_db			= test
