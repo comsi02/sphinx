@@ -1,4 +1,4 @@
 #!/bin/sh
 echo "#---------------------------- indexing ------------------------------#\n"
-./indexer --config ./sphinx.conf --print-queries --all --rotate --dump-rows index_debug.log
+~comsi02/work/sphinx/sphinx/bin/indexer --config ~comsi02/work/sphinx/sphinx/etc/sphinx-min.conf --print-queries --all
 echo "#---------------------------- indexing ------------------------------#\n"

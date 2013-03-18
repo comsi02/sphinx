@@ -1,34 +1,16 @@
-[Fri Mar 15 17:29:10.763 2013] [14191] Child process 14192 has been forked
-[Fri Mar 15 17:29:10.764 2013] [14192] listening on all interfaces, port=9312
-[Fri Mar 15 17:29:10.764 2013] [14192] listening on all interfaces, port=9306
-[Fri Mar 15 17:29:11.014 2013] [14192] WARNING: multiple addresses found for 'localhost', using the first one (ip=127.0.0.1)
-[Fri Mar 15 17:29:11.018 2013] [14192] last message repeated 1 times
-[Fri Mar 15 17:29:11.018 2013] [14192] accepting connections
-[Fri Mar 15 17:32:54.446 2013] [14192] caught SIGTERM, shutting down
-[Fri Mar 15 17:32:54.604 2013] [14192] rt: index rt: ramchunk saved in 0.001 sec
-[Fri Mar 15 17:32:54.640 2013] [14192] shutdown complete
-[Fri Mar 15 17:32:54.641 2013] [14191] Child process 14192 has been finished, exit code 0. Watchdog finishes also. Good bye!
-[Fri Mar 15 17:33:07.660 2013] [14252] Child process 14253 has been forked
-[Fri Mar 15 17:33:07.661 2013] [14253] listening on all interfaces, port=9312
-[Fri Mar 15 17:33:07.662 2013] [14253] listening on all interfaces, port=9306
-[Fri Mar 15 17:33:07.670 2013] [14253] WARNING: multiple addresses found for 'localhost', using the first one (ip=127.0.0.1)
-[Fri Mar 15 17:33:07.741 2013] [14253] last message repeated 1 times
-[Fri Mar 15 17:33:07.741 2013] [14253] accepting connections
-[Fri Mar 15 17:34:16.753 2013] [14269] Child process 14270 has been forked
-[Fri Mar 15 17:34:16.754 2013] [14270] FATAL: failed to lock pid file '/home/comsi02/local/sphinx-2.0.6/var/log/searchd.pid': Resource temporarily unavailable (searchd already running?)
-[Fri Mar 15 17:34:16.755 2013] [14269] Child process 14270 has been finished, exit code 1. Watchdog finishes also. Good bye!
-[Fri Mar 15 17:34:40.584 2013] [14278] Child process 14279 has been forked
-[Fri Mar 15 17:34:40.585 2013] [14279] FATAL: failed to lock pid file '/home/comsi02/local/sphinx-2.0.6/var/log/searchd.pid': Resource temporarily unavailable (searchd already running?)
-[Fri Mar 15 17:34:40.586 2013] [14278] Child process 14279 has been finished, exit code 1. Watchdog finishes also. Good bye!
-[Fri Mar 15 17:36:40.807 2013] [14253] caught SIGTERM, shutting down
-[Fri Mar 15 17:36:40.862 2013] [14253] rt: index rt: ramchunk saved in 0.003 sec
-[Fri Mar 15 17:36:40.912 2013] [14253] shutdown complete
-[Fri Mar 15 17:36:40.915 2013] [14252] Child process 14253 has been finished, exit code 0. Watchdog finishes also. Good bye!
-[Fri Mar 15 17:39:03.933 2013] [14339] Child process 14340 has been forked
-[Fri Mar 15 17:39:03.934 2013] [14340] listening on all interfaces, port=9312
-[Fri Mar 15 17:39:03.935 2013] [14340] listening on all interfaces, port=9306
-[Fri Mar 15 17:39:03.965 2013] [14340] WARNING: multiple addresses found for 'localhost', using the first one (ip=127.0.0.1)
-[Fri Mar 15 17:39:03.977 2013] [14340] last message repeated 1 times
-[Fri Mar 15 17:39:03.977 2013] [14340] accepting connections
-[Fri Mar 15 17:39:23.479 2013] [14340] WARNING: ill-formed client request (length=218788109 out of bounds)
-[Fri Mar 15 17:39:23.480 2013] [14340] WARNING: ill-formed client request (command=2662, SEARCHD_COMMAND_TOTAL=9)
+[Mon Mar 18 18:48:21.360 2013] [ 7877] Child process 7878 has been forked
+[Mon Mar 18 18:48:21.361 2013] [ 7878] listening on all interfaces, port=9312
+[Mon Mar 18 18:48:21.361 2013] [ 7878] listening on all interfaces, port=9306
+[Mon Mar 18 18:48:21.364 2013] [ 7878] rotating index 'deal': success
+[Mon Mar 18 18:48:21.365 2013] [ 7878] accepting connections
+[Mon Mar 18 18:49:08.396 2013] [ 7878] caught SIGTERM, shutting down
+[Mon Mar 18 18:49:08.709 2013] [ 7878] shutdown complete
+[Mon Mar 18 18:49:08.712 2013] [ 7877] Child process 7878 has been finished, exit code 0. Watchdog finishes also. Good bye!
+[Mon Mar 18 18:49:13.199 2013] [ 7915] Child process 7916 has been forked
+[Mon Mar 18 18:49:13.201 2013] [ 7916] listening on all interfaces, port=9312
+[Mon Mar 18 18:49:13.201 2013] [ 7916] listening on all interfaces, port=9306
+[Mon Mar 18 18:49:13.204 2013] [ 7916] binlog: replaying log /home/TMON/comsi02/work/sphinx/sphinx-2.0.6/var/data/binlog.001
+[Mon Mar 18 18:49:13.204 2013] [ 7916] binlog: replay stats: 0 rows in 0 commits; 0 updates; 0 indexes
+[Mon Mar 18 18:49:13.204 2013] [ 7916] binlog: finished replaying /home/TMON/comsi02/work/sphinx/sphinx-2.0.6/var/data/binlog.001; 0.0 MB in 0.000 sec
+[Mon Mar 18 18:49:13.204 2013] [ 7916] binlog: finished replaying total 1 in 0.000 sec
+[Mon Mar 18 18:49:13.204 2013] [ 7916] accepting connections

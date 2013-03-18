@@ -21,8 +21,8 @@ source src1
 	#####################################################################
 
 	# some straightforward parameters for SQL source types
-	sql_host		= 127.0.0.1
-	sql_user		= root
+	sql_host		= localhost
+	sql_user		= test
 	sql_pass		=
 	sql_db			= test
 	sql_port		= 3306	# optional, default is 3306
@@ -270,7 +270,7 @@ source src1
 	# shell command to invoke xmlpipe stream producer
 	# mandatory
 	#
-	# xmlpipe_command		= cat /home/comsi02/local/sphinx-2.0.6/var/test.xml
+	# xmlpipe_command		= cat /home/TMON/comsi02/work/sphinx/sphinx-2.0.6/var/test.xml
 
 	# xmlpipe2 field declaration
 	# multi-value, optional, default is empty
@@ -328,7 +328,7 @@ index test1
 
 	# index files path and file name, without extension
 	# mandatory, path must be writable, extensions will be auto-appended
-	path			= /home/comsi02/local/sphinx-2.0.6/var/data/test1
+	path			= /home/TMON/comsi02/work/sphinx/sphinx-2.0.6/var/data/test1
 
 	# document attribute values (docinfo) storage mode
 	# optional, default is 'extern'
@@ -363,13 +363,13 @@ index test1
 	# optional, default is empty
 	# contents are plain text, charset_table and stemming are both applied
 	#
-	# stopwords		= /home/comsi02/local/sphinx-2.0.6/var/data/stopwords.txt
+	# stopwords		= /home/TMON/comsi02/work/sphinx/sphinx-2.0.6/var/data/stopwords.txt
 
 
 	# wordforms file, in "mapfrom > mapto" plain text format
 	# optional, default is empty
 	#
-	# wordforms		= /home/comsi02/local/sphinx-2.0.6/var/data/wordforms.txt
+	# wordforms		= /home/TMON/comsi02/work/sphinx/sphinx-2.0.6/var/data/wordforms.txt
 
 
 	# tokenizing exceptions file
@@ -378,7 +378,7 @@ index test1
 	# plain text, case sensitive, space insensitive in map-from part
 	# one "Map Several Words => ToASingleOne" entry per line
 	#
-	# exceptions		= /home/comsi02/local/sphinx-2.0.6/var/data/exceptions.txt
+	# exceptions		= /home/TMON/comsi02/work/sphinx/sphinx-2.0.6/var/data/exceptions.txt
 
 
 	# minimum indexed word length
@@ -577,7 +577,7 @@ index test1
 # and may then be overridden in this index definition
 index test1stemmed : test1
 {
-	path			= /home/comsi02/local/sphinx-2.0.6/var/data/test1stemmed
+	path			= /home/TMON/comsi02/work/sphinx/sphinx-2.0.6/var/data/test1stemmed
 	morphology		= stem_en
 }
 
@@ -631,7 +631,7 @@ index rt
 
 	# index files path and file name, without extension
 	# mandatory, path must be writable, extensions will be auto-appended
-	path			= /home/comsi02/local/sphinx-2.0.6/var/data/rt
+	path			= /home/TMON/comsi02/work/sphinx/sphinx-2.0.6/var/data/rt
 
 	# RAM chunk size limit
 	# RT index will keep at most this much data in RAM, then flush to disk
@@ -721,11 +721,11 @@ searchd
 
 	# log file, searchd run info is logged here
 	# optional, default is 'searchd.log'
-	log			= /home/comsi02/local/sphinx-2.0.6/var/log/searchd.log
+	log			= /home/TMON/comsi02/work/sphinx/sphinx-2.0.6/var/log/searchd.log
 
 	# query log file, all search queries are logged here
 	# optional, default is empty (do not log queries)
-	query_log		= /home/comsi02/local/sphinx-2.0.6/var/log/query.log
+	query_log		= /home/TMON/comsi02/work/sphinx/sphinx-2.0.6/var/log/query.log
 
 	# client read timeout, seconds
 	# optional, default is 5
@@ -741,7 +741,7 @@ searchd
 
 	# PID file, searchd process ID file name
 	# mandatory
-	pid_file		= /home/comsi02/local/sphinx-2.0.6/var/log/searchd.pid
+	pid_file		= /home/TMON/comsi02/work/sphinx/sphinx-2.0.6/var/log/searchd.pid
 
 	# max amount of matches the daemon ever keeps in RAM, per-index
 	# WARNING, THERE'S ALSO PER-QUERY LIMIT, SEE SetLimits() API CALL
@@ -787,7 +787,7 @@ searchd
 	# searchd will (try to) log crashed query to 'crash_log_path.PID' file
 	# optional, default is empty (do not create crash logs)
 	#
-	# crash_log_path		= /home/comsi02/local/sphinx-2.0.6/var/log/crash
+	# crash_log_path		= /home/TMON/comsi02/work/sphinx/sphinx-2.0.6/var/log/crash
 
 
 	# max allowed per-query filter count
@@ -852,7 +852,7 @@ searchd
 	# optional, default is build-time configured data directory
 	#
 	# binlog_path		= # disable logging
-	# binlog_path		= /home/comsi02/local/sphinx-2.0.6/var/data # binlog.001 etc will be created there
+	# binlog_path		= /home/TMON/comsi02/work/sphinx/sphinx-2.0.6/var/data # binlog.001 etc will be created there
 
 
 	# binlog flush/sync mode

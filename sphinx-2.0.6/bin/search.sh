@@ -1,4 +1,4 @@
 #!/bin/sh
 echo "#---------------------------- searching ------------------------------#\n"
-./search --config ./sphinx.conf $1
+~comsi02/work/sphinx/sphinx/bin/search --config ~comsi02/work/sphinx/sphinx/etc/sphinx-min.conf
 echo "#---------------------------- searching ------------------------------#\n"
