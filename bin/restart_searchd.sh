@@ -1,6 +1,4 @@
 #!/bin/sh
-echo "#---------------------------- searching ------------------------------#\n"
-~comsi02/work/sphinx/bin/searchd --config ~comsi02/work/sphinx/etc/sphinx-min.conf --stop
+/home/TMON/comsi02/work/sphinx/bin/stop_searchd.sh
 sleep 1
-~comsi02/work/sphinx/bin/searchd --config ~comsi02/work/sphinx/etc/sphinx-min.conf
-echo "#---------------------------- searching ------------------------------#\n"
+/home/TMON/comsi02/work/sphinx/bin/start_searchd.sh
