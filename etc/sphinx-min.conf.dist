@@ -26,7 +26,7 @@ source src1
 index test1
 {
 	source			= src1
-	path			= /home/TMON/comsi02/work/sphinx/sphinx-2.0.6/var/data/test1
+	path			= /home/TMON/comsi02/work/sphinx/var/data/test1
 	docinfo			= extern
 	charset_type		= sbcs
 }
@@ -37,7 +37,7 @@ index testrt
 	type			= rt
 	rt_mem_limit		= 32M
 
-	path			= /home/TMON/comsi02/work/sphinx/sphinx-2.0.6/var/data/testrt
+	path			= /home/TMON/comsi02/work/sphinx/var/data/testrt
 	charset_type		= utf-8
 
 	rt_field		= title
@@ -56,15 +56,15 @@ searchd
 {
 	listen			= 9312
 	listen			= 9306:mysql41
-	log			= /home/TMON/comsi02/work/sphinx/sphinx-2.0.6/var/log/searchd.log
-	query_log		= /home/TMON/comsi02/work/sphinx/sphinx-2.0.6/var/log/query.log
+	log			= /home/TMON/comsi02/work/sphinx/var/log/searchd.log
+	query_log		= /home/TMON/comsi02/work/sphinx/var/log/query.log
 	read_timeout		= 5
 	max_children		= 30
-	pid_file		= /home/TMON/comsi02/work/sphinx/sphinx-2.0.6/var/log/searchd.pid
+	pid_file		= /home/TMON/comsi02/work/sphinx/var/log/searchd.pid
 	max_matches		= 1000
 	seamless_rotate		= 1
 	preopen_indexes		= 1
 	unlink_old		= 1
 	workers			= threads # for RT to work
-	binlog_path		= /home/TMON/comsi02/work/sphinx/sphinx-2.0.6/var/data
+	binlog_path		= /home/TMON/comsi02/work/sphinx/var/data
 }
