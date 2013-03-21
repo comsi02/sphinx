@@ -1,2 +1,3 @@
 /var/data/*.*
 /var/log/*.*
+/etc/sphinx-min.conf
