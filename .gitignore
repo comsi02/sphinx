@@ -1,5 +1,4 @@
-/var/data/*.*
-/var/log/*.*
+!.gitignore
+/var/data/*
+/var/log/*
 /etc/sphinx-min.conf
-!/var/data/.no_use
-!/var/log/.no_use
