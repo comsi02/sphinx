@@ -8,7 +8,7 @@ source deal_AV
 	type			= mysql
 
 	sql_host		= {DBHOST}
-	sql_user		= {USERID}
+	sql_user		= {DBUSER}
 	sql_pass		= {PASSWD}
 	sql_db			= {DATABASE}
 	sql_port		= {DBPORT}	# optional, default is 3306
@@ -17,34 +17,32 @@ source deal_AV
 
 	sql_query		= \
                         SELECT /* query from sphinx deal_AV by comsi02 */ \
-                            x.main_deal_srl as id \
+                            x.main_deal_srl AS id \
                             , x.main_deal_srl \
+                            , x.main_deal_srl AS sort_main_deal_srl \
                             , x.category_srl \
                             , x.title \
-                            , CONCAT('_email_',x.email) \
                             , CONCAT('_category_srl_',x.main_category_srl,';_catogory_srl_',x.category_srl) as _category_srl \
-                            , UNIX_TIMESTAMP(x.start_date) as start_date \
-                            , UNIX_TIMESTAMP(x.end_date) as end_date \
+                            , x.start_date \
+                            , x.end_date \
                         FROM \
                         ( \
-                            SELECT d.* , c.title as category_title , gd.gmarket_item_no , c.main_category_srl , m.email \
-                            FROM ( SELECT d.deal_srl FROM deal d WHERE d.main_deal_srl = d.deal_srl ) d2 \
-                            INNER JOIN deal d on d2.deal_srl = d.deal_srl \
-                            JOIN category c ON d.category_srl = c.category_srl \
-                            LEFT OUTER JOIN deal_manager dm ON d.deal_srl = dm.deal_srl \
-                            LEFT OUTER JOIN manager m ON dm.manager_srl = m.manager_srl \
+                            SELECT d.* , c.title AS category_title , gd.gmarket_item_no , c.main_category_srl \
+                            FROM deal d \
+                            INNER JOIN category c ON d.category_srl = c.category_srl \
                             LEFT OUTER JOIN gmarket_deal gd ON d.main_deal_srl = gd.main_deal_srl AND d.deal_srl = gd.deal_srl \
-                            WHERE 1 and d.deal_from IN ('migration', 'admin', 'salesforce' ) \
+                            WHERE 1 \
+                            AND d.main_deal_srl = d.deal_srl \
+                            AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
                             AND d.end_date > now() \
                             AND d.start_date < now() \
                             AND d.status_type='AV' \
-                            GROUP BY d.main_deal_srl \
                         ) x \
 
-	sql_attr_uint	   = main_deal_srl
-	sql_attr_uint	   = category_srl
-    sql_attr_timestamp = start_date
-    sql_attr_timestamp = end_date
+	sql_attr_uint	     = main_deal_srl
+	sql_attr_uint	     = category_srl
+    sql_attr_str2ordinal = start_date
+    sql_attr_str2ordinal = end_date
 
 	sql_query_info	= SELECT deal_srl as id FROM deal WHERE deal_srl=$id
 }
@@ -55,7 +53,7 @@ source deal_AV_partner
 	type			= mysql
 
 	sql_host		= {DBHOST}
-	sql_user		= {USERID}
+	sql_user		= {DBUSER}
 	sql_pass		= {PASSWD}
 	sql_db			= {DATABASE}
 	sql_port		= {DBPORT}	# optional, default is 3306
@@ -68,31 +66,28 @@ source deal_AV_partner
                             , x.main_deal_srl \
                             , x.category_srl \
                             , v.v_comname \
-                            , CONCAT('_email_',x.email) \
                             , CONCAT('_category_srl_',x.main_category_srl,';_catogory_srl_',x.category_srl) as _category_srl \
-                            , UNIX_TIMESTAMP(x.start_date) as start_date \
-                            , UNIX_TIMESTAMP(x.end_date) as end_date \
+                            , x.start_date \
+                            , x.end_date \
                         FROM \
                         ( \
-                            SELECT d.* , c.title as category_title , gd.gmarket_item_no , c.main_category_srl , m.email \
-                            FROM ( SELECT d.deal_srl FROM deal d WHERE d.main_deal_srl = d.deal_srl ) d2 \
-                            INNER JOIN deal d on d2.deal_srl = d.deal_srl \
+                            SELECT d.* , c.title as category_title , gd.gmarket_item_no , c.main_category_srl \
+                            FROM deal d \
                             JOIN category c ON d.category_srl = c.category_srl \
-                            LEFT OUTER JOIN deal_manager dm ON d.deal_srl = dm.deal_srl \
-                            LEFT OUTER JOIN manager m ON dm.manager_srl = m.manager_srl \
                             LEFT OUTER JOIN gmarket_deal gd ON d.main_deal_srl = gd.main_deal_srl AND d.deal_srl = gd.deal_srl \
-                            WHERE 1 and d.deal_from IN ('migration', 'admin', 'salesforce' ) \
+                            WHERE 1 \
+                            AND d.main_deal_srl = d.deal_srl \
+                            AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
                             AND d.end_date > now() \
                             AND d.start_date < now() \
                             AND d.status_type='AV' \
-                            GROUP BY d.main_deal_srl \
                         ) x \
                         LEFT OUTER JOIN ticketmonster.vender v ON x.partner_srl = v.v_no \
                 
-	sql_attr_uint	   = main_deal_srl
-	sql_attr_uint	   = category_srl
-    sql_attr_timestamp = start_date
-    sql_attr_timestamp = end_date
+	sql_attr_uint	     = main_deal_srl
+	sql_attr_uint	     = category_srl
+    sql_attr_str2ordinal = start_date
+    sql_attr_str2ordinal = end_date
 
 	sql_query_info	= SELECT deal_srl as id FROM deal WHERE deal_srl=$id
 }
@@ -103,7 +98,7 @@ source deal_AV_WT
 	type			= mysql
 
 	sql_host		= {DBHOST}
-	sql_user		= {USERID}
+	sql_user		= {DBUSER}
 	sql_pass		= {PASSWD}
 	sql_db			= {DATABASE}
 	sql_port		= {DBPORT}	# optional, default is 3306
@@ -112,35 +107,32 @@ source deal_AV_WT
 
 	sql_query		= \
                         SELECT /* query from sphinx deal_AV_WT by comsi02 */ \
-                            x.main_deal_srl as id \
+                            x.main_deal_srl AS id \
                             , x.main_deal_srl \
                             , x.category_srl \
                             , x.title \
-                            , CONCAT('_email_',x.email) \
                             , CONCAT('_category_srl_',x.main_category_srl,';_catogory_srl_',x.category_srl) as _category_srl \
-                            , UNIX_TIMESTAMP(x.start_date) as start_date \
-                            , UNIX_TIMESTAMP(x.end_date) as end_date \
+                            , x.start_date \
+                            , x.end_date \
                         FROM \
                         ( \
-                            SELECT d.*, c.title AS category_title, gd.gmarket_item_no, c.main_category_srl, m.email  \
+                            SELECT d.* , c.title AS category_title , gd.gmarket_item_no , c.main_category_srl \
                             FROM deal d \
                             INNER JOIN category c ON d.category_srl = c.category_srl \
-                            LEFT OUTER JOIN deal_manager dm ON d.deal_srl = dm.deal_srl \
-                            LEFT OUTER JOIN manager m ON dm.manager_srl = m.manager_srl \
                             LEFT OUTER JOIN gmarket_deal gd ON d.main_deal_srl = gd.main_deal_srl AND d.deal_srl = gd.deal_srl \
-                            WHERE d.main_deal_srl = d.deal_srl \
+                            WHERE 1 \
+                            AND d.main_deal_srl = d.deal_srl \
                             AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
                             AND d.end_date > now() \
                             AND d.start_date < now() \
                             AND d.status_type='AV' \
                             AND EXISTS ( SELECT * FROM deal WHERE main_deal_srl = d.main_deal_srl AND status_type = 'WT' ) \
-                            GROUP BY d.main_deal_srl \
                         ) x \
 
-	sql_attr_uint	   = main_deal_srl
-	sql_attr_uint	   = category_srl
-    sql_attr_timestamp = start_date
-    sql_attr_timestamp = end_date
+	sql_attr_uint	     = main_deal_srl
+	sql_attr_uint	     = category_srl
+    sql_attr_str2ordinal = start_date
+    sql_attr_str2ordinal = end_date
 
 	sql_query_info	= SELECT deal_srl as id FROM deal WHERE deal_srl=$id
 }
@@ -151,7 +143,7 @@ source deal_AV_WT_partner
 	type			= mysql
 
 	sql_host		= {DBHOST}
-	sql_user		= {USERID}
+	sql_user		= {DBUSER}
 	sql_pass		= {PASSWD}
 	sql_db			= {DATABASE}
 	sql_port		= {DBPORT}	# optional, default is 3306
@@ -160,36 +152,33 @@ source deal_AV_WT_partner
 
 	sql_query		= \
                         SELECT /* query from sphinx deal_AV_WT by comsi02 */ \
-                            x.main_deal_srl as id \
+                            x.main_deal_srl AS id \
                             , x.main_deal_srl \
                             , x.category_srl \
                             , v.v_comname \
-                            , CONCAT('_email_',x.email) \
                             , CONCAT('_category_srl_',x.main_category_srl,';_catogory_srl_',x.category_srl) as _category_srl \
-                            , UNIX_TIMESTAMP(x.start_date) as start_date \
-                            , UNIX_TIMESTAMP(x.end_date) as end_date \
+                            , x.start_date \
+                            , x.end_date \
                         FROM \
                         ( \
-                            SELECT d.*, c.title AS category_title, gd.gmarket_item_no, c.main_category_srl , m.email \
+                            SELECT d.* , c.title AS category_title , gd.gmarket_item_no , c.main_category_srl \
                             FROM deal d \
                             INNER JOIN category c ON d.category_srl = c.category_srl \
-                            LEFT OUTER JOIN deal_manager dm ON d.deal_srl = dm.deal_srl \
-                            LEFT OUTER JOIN manager m ON dm.manager_srl = m.manager_srl \
                             LEFT OUTER JOIN gmarket_deal gd ON d.main_deal_srl = gd.main_deal_srl AND d.deal_srl = gd.deal_srl \
-                            WHERE d.main_deal_srl = d.deal_srl \
+                            WHERE 1 \
+                            AND d.main_deal_srl = d.deal_srl \
                             AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
                             AND d.end_date > now() \
                             AND d.start_date < now() \
                             AND d.status_type='AV' \
                             AND EXISTS ( SELECT * FROM deal WHERE main_deal_srl = d.main_deal_srl AND status_type = 'WT' ) \
-                            GROUP BY d.main_deal_srl \
                         ) x \
                         LEFT OUTER JOIN ticketmonster.vender v ON x.partner_srl = v.v_no
                         
-	sql_attr_uint	   = main_deal_srl
-	sql_attr_uint	   = category_srl
-    sql_attr_timestamp = start_date
-    sql_attr_timestamp = end_date
+	sql_attr_uint	     = main_deal_srl
+	sql_attr_uint	     = category_srl
+    sql_attr_str2ordinal = start_date
+    sql_attr_str2ordinal = end_date
 
 	sql_query_info	= SELECT deal_srl as id FROM deal WHERE deal_srl=$id
 }
@@ -200,7 +189,7 @@ source deal_RD
 	type			= mysql
 
 	sql_host		= {DBHOST}
-	sql_user		= {USERID}
+	sql_user		= {DBUSER}
 	sql_pass		= {PASSWD}
 	sql_db			= {DATABASE}
 	sql_port		= {DBPORT}	# optional, default is 3306
@@ -208,36 +197,32 @@ source deal_RD
     sql_query_pre   = SET NAMES utf8
 
 	sql_query		= \
-                        SELECT \
+                        SELECT /* query from sphinx deal_RD by comsi02 */ \
                             x.main_deal_srl as id \
                             , x.main_deal_srl \
                             , x.category_srl \
                             , x.title \
-                            , CONCAT('_email_',x.email) \
                             , CONCAT('_category_srl_',x.main_category_srl,';_catogory_srl_',x.category_srl) as _category_srl \
-                            , UNIX_TIMESTAMP(x.start_date) as start_date \
-                            , UNIX_TIMESTAMP(x.end_date) as end_date \
+                            , x.start_date \
+                            , x.end_date \
                         FROM \
                         ( \
-                            SELECT d.* , c.title as category_title , gd.gmarket_item_no , c.main_category_srl , m.email \
-                            FROM ( select d.deal_srl from deal d where d.main_deal_srl = d.deal_srl ) d2 \
-                            inner join deal d on d2.deal_srl = d.deal_srl \
-                            JOIN category c ON d.category_srl = c.category_srl \
-                            LEFT OUTER JOIN deal_manager dm ON d.deal_srl = dm.deal_srl \
-                            LEFT OUTER JOIN manager m ON dm.manager_srl = m.manager_srl \
-                            LEFT OUTER JOIN gmarket_deal gd ON d.main_deal_srl = gd.main_deal_srl and d.deal_srl = gd.deal_srl \
+                            SELECT d.* , c.title AS category_title , gd.gmarket_item_no , c.main_category_srl \
+                            FROM deal d \
+                            INNER JOIN category c ON d.category_srl = c.category_srl \
+                            LEFT OUTER JOIN gmarket_deal gd ON d.main_deal_srl = gd.main_deal_srl AND d.deal_srl = gd.deal_srl \
                             WHERE 1 \
-                            and d.deal_from IN ('migration', 'admin', 'salesforce' ) \
-                            and d.end_date > now() \
-                            and d.start_date > now() \
-                            and d.status_type='AV' \
-                            GROUP BY d.main_deal_srl \
+                            AND d.main_deal_srl = d.deal_srl \
+                            AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
+                            AND d.end_date > now() \
+                            AND d.start_date > now() \
+                            AND d.status_type='AV' \
                         ) x \
 
-	sql_attr_uint	   = main_deal_srl
-	sql_attr_uint	   = category_srl
-    sql_attr_timestamp = start_date
-    sql_attr_timestamp = end_date
+	sql_attr_uint	     = main_deal_srl
+	sql_attr_uint	     = category_srl
+    sql_attr_str2ordinal = start_date
+    sql_attr_str2ordinal = end_date
 
 	sql_query_info	= SELECT deal_srl as id FROM deal WHERE deal_srl=$id
 }
@@ -248,7 +233,7 @@ source deal_RD_partner
 	type			= mysql
 
 	sql_host		= {DBHOST}
-	sql_user		= {USERID}
+	sql_user		= {DBUSER}
 	sql_pass		= {PASSWD}
 	sql_db			= {DATABASE}
 	sql_port		= {DBPORT}	# optional, default is 3306
@@ -256,48 +241,45 @@ source deal_RD_partner
     sql_query_pre   = SET NAMES utf8
 
 	sql_query		= \
-                        SELECT \
-                            x.main_deal_srl as id \
+                        SELECT /* query from sphinx deal_RD_partner by comsi02 */ \
+                            x.main_deal_srl AS id \
                             , x.main_deal_srl \
                             , x.category_srl \
                             , v.v_comname \
-                            , CONCAT('_email_',x.email) \
                             , CONCAT('_category_srl_',x.main_category_srl,';_catogory_srl_',x.category_srl) as _category_srl \
-                            , UNIX_TIMESTAMP(x.start_date) as start_date \
-                            , UNIX_TIMESTAMP(x.end_date) as end_date \
+                            , x.start_date \
+                            , x.end_date \
                         FROM \
                         ( \
-                            SELECT d.* , c.title as category_title , gd.gmarket_item_no , c.main_category_srl, m.email \
-                            FROM ( select d.deal_srl from deal d where d.main_deal_srl = d.deal_srl ) d2 \
-                            inner join deal d on d2.deal_srl = d.deal_srl \
-                            JOIN category c ON d.category_srl = c.category_srl \
-                            LEFT OUTER JOIN deal_manager dm ON d.deal_srl = dm.deal_srl \
-                            LEFT OUTER JOIN manager m ON dm.manager_srl = m.manager_srl \
-                            LEFT OUTER JOIN gmarket_deal gd ON d.main_deal_srl = gd.main_deal_srl and d.deal_srl = gd.deal_srl \
+                            SELECT d.* , c.title AS category_title , gd.gmarket_item_no , c.main_category_srl \
+                            FROM deal d \
+                            INNER JOIN category c ON d.category_srl = c.category_srl \
+                            LEFT OUTER JOIN gmarket_deal gd ON d.main_deal_srl = gd.main_deal_srl AND d.deal_srl = gd.deal_srl \
                             WHERE 1 \
-                            and d.deal_from IN ('migration', 'admin', 'salesforce' ) \
-                            and d.end_date > now() \
-                            and d.start_date > now() \
-                            and d.status_type='AV' \
-                            GROUP BY d.main_deal_srl \
+                            AND d.main_deal_srl = d.deal_srl \
+                            AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
+                            AND d.end_date > now() \
+                            AND d.start_date > now() \
+                            AND d.status_type='AV' \
                         ) x \
                         LEFT OUTER JOIN ticketmonster.vender v ON x.partner_srl = v.v_no \
 
-	sql_attr_uint	   = main_deal_srl
-	sql_attr_uint	   = category_srl
-    sql_attr_timestamp = start_date
-    sql_attr_timestamp = end_date
+
+	sql_attr_uint	     = main_deal_srl
+	sql_attr_uint	     = category_srl
+    sql_attr_str2ordinal = start_date
+    sql_attr_str2ordinal = end_date
 
 	sql_query_info	= SELECT deal_srl as id FROM deal WHERE deal_srl=$id
 }
 
-# 4-1. 티몬관리 > 컨펌 대기중 티몬 > 상품명검색 (딜 시작일 검색 조건 추가 해야함.)
+# 4-1. 티몬관리 > 컨펌 대기중 티몬 > 상품명검색
 source deal_WT
 {
 	type			= mysql
 
 	sql_host		= {DBHOST}
-	sql_user		= {USERID}
+	sql_user		= {DBUSER}
 	sql_pass		= {PASSWD}
 	sql_db			= {DATABASE}
 	sql_port		= {DBPORT}	# optional, default is 3306
@@ -305,34 +287,34 @@ source deal_WT
     sql_query_pre   = SET NAMES utf8
 
 	sql_query		= \
-                        SELECT \
-                            x.main_deal_srl as id \
+                        SELECT /* query from sphinx deal_WT by comsi02 */ \
+                            x.main_deal_srl AS id \
                             , x.main_deal_srl \
                             , x.category_srl \
                             , x.title \
-                            , CONCAT('_email_',x.email) \
                             , CONCAT('_category_srl_',x.main_category_srl,';_catogory_srl_',x.category_srl) as _category_srl \
-                            , UNIX_TIMESTAMP(x.start_date) as start_date \
-                            , UNIX_TIMESTAMP(x.end_date) as end_date \
+                            , x.start_date \
+                            , x.end_date \
+                            , UNIX_TIMESTAMP(x.start_date) as range_start_date \
+                            , UNIX_TIMESTAMP(x.end_date) as range_end_date \
                         FROM \
                         ( \
-                            SELECT d.* , c.title as category_title , gd.gmarket_item_no , c.main_category_srl , m.email \
-                            FROM ( SELECT d.deal_srl FROM deal d WHERE d.main_deal_srl = d.deal_srl ) d2 \
-                            INNER JOIN deal d ON d2.deal_srl = d.deal_srl \
-                            JOIN category c ON d.category_srl = c.category_srl \
-                            LEFT OUTER JOIN deal_manager dm ON d.deal_srl = dm.deal_srl \
-                            LEFT OUTER JOIN manager m ON dm.manager_srl = m.manager_srl \
+                            SELECT d.* , c.title AS category_title , gd.gmarket_item_no , c.main_category_srl \
+                            FROM deal d \
+                            INNER JOIN category c ON d.category_srl = c.category_srl \
                             LEFT OUTER JOIN gmarket_deal gd ON d.main_deal_srl = gd.main_deal_srl AND d.deal_srl = gd.deal_srl \
                             WHERE 1 \
+                            AND d.main_deal_srl = d.deal_srl \
                             AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
                             AND d.status_type='WT' \
-                            GROUP BY d.main_deal_srl \
                         ) x \
 
-	sql_attr_uint	   = main_deal_srl
-	sql_attr_uint	   = category_srl
-    sql_attr_timestamp = start_date
-    sql_attr_timestamp = end_date
+	sql_attr_uint	     = main_deal_srl
+	sql_attr_uint	     = category_srl
+    sql_attr_str2ordinal = start_date
+    sql_attr_str2ordinal = end_date
+    sql_attr_timestamp   = range_start_date
+    sql_attr_timestamp   = range_end_date
 
 	sql_query_info	= SELECT deal_srl as id FROM deal WHERE deal_srl=$id
 }
@@ -343,7 +325,7 @@ source deal_WT_partner
 	type			= mysql
 
 	sql_host		= {DBHOST}
-	sql_user		= {USERID}
+	sql_user		= {DBUSER}
 	sql_pass		= {PASSWD}
 	sql_db			= {DATABASE}
 	sql_port		= {DBPORT}	# optional, default is 3306
@@ -351,35 +333,35 @@ source deal_WT_partner
     sql_query_pre   = SET NAMES utf8
 
 	sql_query		= \
-                        SELECT \
-                            x.main_deal_srl as id \
+                        SELECT /* query from sphinx deal_WT_partner by comsi02 */ \
+                            x.main_deal_srl AS id \
                             , x.main_deal_srl \
                             , x.category_srl \
                             , v.v_comname \
-                            , CONCAT('_email_',x.email) \
                             , CONCAT('_category_srl_',x.main_category_srl,';_catogory_srl_',x.category_srl) as _category_srl \
-                            , UNIX_TIMESTAMP(x.start_date) as start_date \
-                            , UNIX_TIMESTAMP(x.end_date) as end_date \
+                            , x.start_date \
+                            , x.end_date \
+                            , UNIX_TIMESTAMP(x.start_date) as range_start_date \
+                            , UNIX_TIMESTAMP(x.end_date) as range_end_date \
                         FROM \
                         ( \
-                            SELECT d.* , c.title as category_title , gd.gmarket_item_no , c.main_category_srl , m.email \
-                            FROM ( SELECT d.deal_srl FROM deal d WHERE d.main_deal_srl = d.deal_srl ) d2 \
-                            INNER JOIN deal d ON d2.deal_srl = d.deal_srl \
-                            JOIN category c ON d.category_srl = c.category_srl \
-                            LEFT OUTER JOIN deal_manager dm ON d.deal_srl = dm.deal_srl \
-                            LEFT OUTER JOIN manager m ON dm.manager_srl = m.manager_srl \
+                            SELECT d.* , c.title AS category_title , gd.gmarket_item_no , c.main_category_srl \
+                            FROM deal d \
+                            INNER JOIN category c ON d.category_srl = c.category_srl \
                             LEFT OUTER JOIN gmarket_deal gd ON d.main_deal_srl = gd.main_deal_srl AND d.deal_srl = gd.deal_srl \
                             WHERE 1 \
+                            AND d.main_deal_srl = d.deal_srl \
                             AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
                             AND d.status_type='WT' \
-                            GROUP BY d.main_deal_srl \
                         ) x \
                         LEFT OUTER JOIN ticketmonster.vender v ON x.partner_srl = v.v_no \
 
-	sql_attr_uint	   = main_deal_srl
-	sql_attr_uint	   = category_srl
-    sql_attr_timestamp = start_date
-    sql_attr_timestamp = end_date
+	sql_attr_uint	     = main_deal_srl
+	sql_attr_uint	     = category_srl
+    sql_attr_str2ordinal = start_date
+    sql_attr_str2ordinal = end_date
+    sql_attr_timestamp   = range_start_date
+    sql_attr_timestamp   = range_end_date
 
 	sql_query_info	= SELECT deal_srl as id FROM deal WHERE deal_srl=$id
 }
@@ -390,7 +372,7 @@ source deal_RD_WT
 	type			= mysql
 
 	sql_host		= {DBHOST}
-	sql_user		= {USERID}
+	sql_user		= {DBUSER}
 	sql_pass		= {PASSWD}
 	sql_db			= {DATABASE}
 	sql_port		= {DBPORT}	# optional, default is 3306
@@ -398,38 +380,33 @@ source deal_RD_WT
     sql_query_pre   = SET NAMES utf8
 
 	sql_query		= \
-                        SELECT \
-                            x.main_deal_srl as id \
+                        SELECT /* query from sphinx deal_RD_WT by comsi02 */ \
+                            x.main_deal_srl AS id \
                             , x.main_deal_srl \
                             , x.category_srl \
                             , x.title \
-                            , CONCAT('_email_',x.email) \
                             , CONCAT('_category_srl_',x.main_category_srl,';_catogory_srl_',x.category_srl) as _category_srl \
-                            , UNIX_TIMESTAMP(x.start_date) as start_date \
-                            , UNIX_TIMESTAMP(x.end_date) as end_date \
+                            , x.start_date \
+                            , x.end_date \
                         FROM \
                         ( \
-                            SELECT d.*, c.title AS category_title, gd.gmarket_item_no , c.main_category_srl , m.email \
+                            SELECT d.* , c.title AS category_title , gd.gmarket_item_no , c.main_category_srl \
                             FROM deal d \
                             INNER JOIN category c ON d.category_srl = c.category_srl \
-                            LEFT OUTER JOIN deal_manager dm ON d.deal_srl = dm.deal_srl \
-                            LEFT OUTER JOIN manager m ON dm.manager_srl = m.manager_srl \
                             LEFT OUTER JOIN gmarket_deal gd ON d.main_deal_srl = gd.main_deal_srl AND d.deal_srl = gd.deal_srl \
-                            WHERE d.main_deal_srl = d.deal_srl \
+                            WHERE 1 \
+                            AND d.main_deal_srl = d.deal_srl \
                             AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
                             AND d.end_date > now() \
                             AND d.start_date > now() \
                             AND d.status_type='AV' \
                             AND EXISTS ( SELECT * FROM deal WHERE main_deal_srl = d.main_deal_srl AND status_type = 'WT' ) \
-                            GROUP BY d.main_deal_srl \
                         ) x \
 
-
-
-	sql_attr_uint	   = main_deal_srl
-	sql_attr_uint	   = category_srl
-    sql_attr_timestamp = start_date
-    sql_attr_timestamp = end_date
+	sql_attr_uint	     = main_deal_srl
+	sql_attr_uint	     = category_srl
+    sql_attr_str2ordinal = start_date
+    sql_attr_str2ordinal = end_date
 
 	sql_query_info	= SELECT deal_srl as id FROM deal WHERE deal_srl=$id
 }
@@ -440,7 +417,7 @@ source deal_RD_WT_partner
 	type			= mysql
 
 	sql_host		= {DBHOST}
-	sql_user		= {USERID}
+	sql_user		= {DBUSER}
 	sql_pass		= {PASSWD}
 	sql_db			= {DATABASE}
 	sql_port		= {DBPORT}	# optional, default is 3306
@@ -448,37 +425,34 @@ source deal_RD_WT_partner
     sql_query_pre   = SET NAMES utf8
 
 	sql_query		= \
-                        SELECT \
+                        SELECT /* query from sphinx deal_RD_WT_partner by comsi02 */ \
                             x.main_deal_srl as id \
                             , x.main_deal_srl \
                             , x.category_srl \
                             , v.v_comname \
-                            , CONCAT('_email_',x.email) \
                             , CONCAT('_category_srl_',x.main_category_srl,';_catogory_srl_',x.category_srl) as _category_srl \
-                            , UNIX_TIMESTAMP(x.start_date) as start_date \
-                            , UNIX_TIMESTAMP(x.end_date) as end_date \
+                            , x.start_date \
+                            , x.end_date \
                         FROM \
                         ( \
-                            SELECT d.*, c.title AS category_title, gd.gmarket_item_no , c.main_category_srl , m.email \
+                            SELECT d.* , c.title AS category_title , gd.gmarket_item_no , c.main_category_srl \
                             FROM deal d \
                             INNER JOIN category c ON d.category_srl = c.category_srl \
-                            LEFT OUTER JOIN deal_manager dm ON d.deal_srl = dm.deal_srl \
-                            LEFT OUTER JOIN manager m ON dm.manager_srl = m.manager_srl \
                             LEFT OUTER JOIN gmarket_deal gd ON d.main_deal_srl = gd.main_deal_srl AND d.deal_srl = gd.deal_srl \
-                            WHERE d.main_deal_srl = d.deal_srl \
+                            WHERE 1 \
+                            AND d.main_deal_srl = d.deal_srl \
                             AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
                             AND d.end_date > now() \
                             AND d.start_date > now() \
                             AND d.status_type='AV' \
                             AND EXISTS ( SELECT * FROM deal WHERE main_deal_srl = d.main_deal_srl AND status_type = 'WT' ) \
-                            GROUP BY d.main_deal_srl \
                         ) x \
                         LEFT OUTER JOIN ticketmonster.vender v ON x.partner_srl = v.v_no \
 
-	sql_attr_uint	   = main_deal_srl
-	sql_attr_uint  	   = category_srl
-    sql_attr_timestamp = start_date
-    sql_attr_timestamp = end_date
+	sql_attr_uint	     = main_deal_srl
+	sql_attr_uint	     = category_srl
+    sql_attr_str2ordinal = start_date
+    sql_attr_str2ordinal = end_date
 
 	sql_query_info	= SELECT deal_srl as id FROM deal WHERE deal_srl=$id
 }
@@ -489,7 +463,7 @@ source deal_ED
 	type			= mysql
 
 	sql_host		= {DBHOST}
-	sql_user		= {USERID}
+	sql_user		= {DBUSER}
 	sql_pass		= {PASSWD}
 	sql_db			= {DATABASE}
 	sql_port		= {DBPORT}	# optional, default is 3306
@@ -497,34 +471,30 @@ source deal_ED
     sql_query_pre   = SET NAMES utf8
 
 	sql_query		= \
-                        SELECT \
-                            x.main_deal_srl as id \
+                        SELECT /* query from sphinx deal_ED by comsi02 */ \
+                            x.main_deal_srl AS id \
                             , x.main_deal_srl \
                             , x.category_srl \
                             , x.title \
-                            , CONCAT('_email_',x.email) \
                             , CONCAT('_category_srl_',x.main_category_srl,';_catogory_srl_',x.category_srl) as _category_srl \
-                            , UNIX_TIMESTAMP(x.start_date) as start_date \
-                            , UNIX_TIMESTAMP(x.end_date) as end_date \
+                            , x.start_date \
+                            , x.end_date \
                         FROM \
                         ( \
-                            SELECT d.* , c.title as category_title , gd.gmarket_item_no , c.main_category_srl , m.email \
-                            FROM ( SELECT d.deal_srl FROM deal d WHERE d.main_deal_srl = d.deal_srl ) d2 \
-                            INNER JOIN deal d ON d2.deal_srl = d.deal_srl \
-                            JOIN category c ON d.category_srl = c.category_srl \
-                            LEFT OUTER JOIN deal_manager dm ON d.deal_srl = dm.deal_srl \
-                            LEFT OUTER JOIN manager m ON dm.manager_srl = m.manager_srl \
+                            SELECT d.* , c.title AS category_title , gd.gmarket_item_no , c.main_category_srl \
+                            FROM deal d \
+                            INNER JOIN category c ON d.category_srl = c.category_srl \
                             LEFT OUTER JOIN gmarket_deal gd ON d.main_deal_srl = gd.main_deal_srl AND d.deal_srl = gd.deal_srl \
                             WHERE 1 \
+                            AND d.main_deal_srl = d.deal_srl \
                             AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
-                            AND ((d.end_date < now() and d.status_type IN ('HD','DN','AV') ) OR d.status_type='HD' OR d.status_type='DN') \
-                            GROUP BY d.main_deal_srl \
+                            AND ((d.end_date < now() AND d.status_type IN ('HD','DN','AV') ) OR d.status_type='HD' OR d.status_type='DN') \
                         ) x \
 
-	sql_attr_uint	   = main_deal_srl
-	sql_attr_uint	   = category_srl
-    sql_attr_timestamp = start_date
-    sql_attr_timestamp = end_date
+	sql_attr_uint	     = main_deal_srl
+	sql_attr_uint	     = category_srl
+    sql_attr_str2ordinal = start_date
+    sql_attr_str2ordinal = end_date
 
 	sql_query_info	= SELECT deal_srl as id FROM deal WHERE deal_srl=$id
 }
@@ -535,7 +505,7 @@ source deal_ED_partner
 	type			= mysql
 
 	sql_host		= {DBHOST}
-	sql_user		= {USERID}
+	sql_user		= {DBUSER}
 	sql_pass		= {PASSWD}
 	sql_db			= {DATABASE}
 	sql_port		= {DBPORT}	# optional, default is 3306
@@ -543,35 +513,31 @@ source deal_ED_partner
     sql_query_pre   = SET NAMES utf8
 
 	sql_query		= \
-                        SELECT \
-                            x.main_deal_srl as id \
+                        SELECT /* query from sphinx deal_ED_partnet by comsi02 */ \
+                            x.main_deal_srl AS id \
                             , x.main_deal_srl \
                             , x.category_srl \
                             , v.v_comname \
-                            , CONCAT('_email_',x.email) \
                             , CONCAT('_category_srl_',x.main_category_srl,';_catogory_srl_',x.category_srl) as _category_srl \
-                            , UNIX_TIMESTAMP(x.start_date) as start_date \
-                            , UNIX_TIMESTAMP(x.end_date) as end_date \
+                            , x.start_date \
+                            , x.end_date \
                         FROM \
                         ( \
-                            SELECT d.* , c.title as category_title , gd.gmarket_item_no , c.main_category_srl , m.email \
-                            FROM ( SELECT d.deal_srl FROM deal d WHERE d.main_deal_srl = d.deal_srl ) d2 \
-                            INNER JOIN deal d ON d2.deal_srl = d.deal_srl \
-                            JOIN category c ON d.category_srl = c.category_srl \
-                            LEFT OUTER JOIN deal_manager dm ON d.deal_srl = dm.deal_srl \
-                            LEFT OUTER JOIN manager m ON dm.manager_srl = m.manager_srl \
+                            SELECT d.* , c.title AS category_title , gd.gmarket_item_no , c.main_category_srl \
+                            FROM deal d \
+                            INNER JOIN category c ON d.category_srl = c.category_srl \
                             LEFT OUTER JOIN gmarket_deal gd ON d.main_deal_srl = gd.main_deal_srl AND d.deal_srl = gd.deal_srl \
                             WHERE 1 \
+                            AND d.main_deal_srl = d.deal_srl \
                             AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
                             AND ((d.end_date < now() and d.status_type IN ('HD','DN','AV') ) OR d.status_type='HD' OR d.status_type='DN') \
-                            GROUP BY d.main_deal_srl \
                         ) x \
                         LEFT OUTER JOIN ticketmonster.vender v ON x.partner_srl = v.v_no \
 
-	sql_attr_uint	   = main_deal_srl
-	sql_attr_uint	   = category_srl
-    sql_attr_timestamp = start_date
-    sql_attr_timestamp = end_date
+	sql_attr_uint	     = main_deal_srl
+	sql_attr_uint	     = category_srl
+    sql_attr_str2ordinal = start_date
+    sql_attr_str2ordinal = end_date
 
 	sql_query_info	= SELECT deal_srl as id FROM deal WHERE deal_srl=$id
 }
@@ -582,7 +548,7 @@ source deal_TP
 	type			= mysql
 
 	sql_host		= {DBHOST}
-	sql_user		= {USERID}
+	sql_user		= {DBUSER}
 	sql_pass		= {PASSWD}
 	sql_db			= {DATABASE}
 	sql_port		= {DBPORT}	# optional, default is 3306
@@ -590,33 +556,29 @@ source deal_TP
     sql_query_pre   = SET NAMES utf8
 
 	sql_query		= \
-                        SELECT \
-                            x.main_deal_srl as id \
+                        SELECT /* query from sphinx deal_TP by comsi02 */ \
+                            x.main_deal_srl AS id \
                             , x.main_deal_srl \
                             , x.category_srl \
                             , x.title \
-                            , CONCAT('_email_',x.email) \
                             , CONCAT('_category_srl_',x.main_category_srl,';_catogory_srl_',x.category_srl) as _category_srl \
-                            , UNIX_TIMESTAMP(x.start_date) as start_date \
-                            , UNIX_TIMESTAMP(x.end_date) as end_date \
+                            , x.start_date \
+                            , x.end_date \
                         FROM \
                         ( \
-                            SELECT d.* , c.title as category_title , gd.gmarket_item_no, c.main_category_srl , m.email \
-                            FROM ( SELECT d.deal_srl FROM deal d WHERE d.main_deal_srl = d.deal_srl ) d2 \
-                            INNER JOIN deal d on d2.deal_srl = d.deal_srl \
-                            JOIN category c ON d.category_srl = c.category_srl \
-                            LEFT OUTER JOIN deal_manager dm ON d.deal_srl = dm.deal_srl \
-                            LEFT OUTER JOIN manager m ON dm.manager_srl = m.manager_srl \
+                            SELECT d.* , c.title AS category_title , gd.gmarket_item_no , c.main_category_srl \
+                            FROM deal d \
+                            INNER JOIN category c ON d.category_srl = c.category_srl \
                             LEFT OUTER JOIN gmarket_deal gd ON d.main_deal_srl = gd.main_deal_srl AND d.deal_srl = gd.deal_srl \
                             WHERE 1 \
+                            AND d.main_deal_srl = d.deal_srl \
                             AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
-                            GROUP BY d.main_deal_srl \
                         ) x \
 
-	sql_attr_uint	   = main_deal_srl
-	sql_attr_uint	   = category_srl
-    sql_attr_timestamp = start_date
-    sql_attr_timestamp = end_date
+	sql_attr_uint	     = main_deal_srl
+	sql_attr_uint	     = category_srl
+    sql_attr_str2ordinal = start_date
+    sql_attr_str2ordinal = end_date
 
 	sql_query_info	= SELECT deal_srl as id FROM deal WHERE deal_srl=$id
 }
@@ -627,7 +589,7 @@ source deal_TP_partner
 	type			= mysql
 
 	sql_host		= {DBHOST}
-	sql_user		= {USERID}
+	sql_user		= {DBUSER}
 	sql_pass		= {PASSWD}
 	sql_db			= {DATABASE}
 	sql_port		= {DBPORT}	# optional, default is 3306
@@ -635,34 +597,30 @@ source deal_TP_partner
     sql_query_pre   = SET NAMES utf8
 
 	sql_query		= \
-                        SELECT \
-                            x.main_deal_srl as id \
+                        SELECT /* query from sphinx deal_TP_partner by comsi02 */ \
+                            x.main_deal_srl AS id \
                             , x.main_deal_srl \
                             , x.category_srl \
                             , v.v_comname \
-                            , CONCAT('_email_',x.email) \
                             , CONCAT('_category_srl_',x.main_category_srl,';_catogory_srl_',x.category_srl) as _category_srl \
-                            , UNIX_TIMESTAMP(x.start_date) as start_date \
-                            , UNIX_TIMESTAMP(x.end_date) as end_date \
+                            , x.start_date \
+                            , x.end_date \
                         FROM \
                         ( \
-                            SELECT d.* , c.title as category_title , gd.gmarket_item_no, c.main_category_srl , m.email \
-                            FROM ( SELECT d.deal_srl FROM deal d WHERE d.main_deal_srl = d.deal_srl ) d2 \
-                            INNER JOIN deal d on d2.deal_srl = d.deal_srl \
-                            JOIN category c ON d.category_srl = c.category_srl \
-                            LEFT OUTER JOIN deal_manager dm ON d.deal_srl = dm.deal_srl \
-                            LEFT OUTER JOIN manager m ON dm.manager_srl = m.manager_srl \
+                            SELECT d.* , c.title AS category_title , gd.gmarket_item_no , c.main_category_srl \
+                            FROM deal d \
+                            INNER JOIN category c ON d.category_srl = c.category_srl \
                             LEFT OUTER JOIN gmarket_deal gd ON d.main_deal_srl = gd.main_deal_srl AND d.deal_srl = gd.deal_srl \
                             WHERE 1 \
+                            AND d.main_deal_srl = d.deal_srl \
                             AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
-                            GROUP BY d.main_deal_srl \
                         ) x \
                         LEFT OUTER JOIN ticketmonster.vender v ON x.partner_srl = v.v_no \
 
-	sql_attr_uint	   = main_deal_srl
-	sql_attr_uint	   = category_srl
-    sql_attr_timestamp = start_date
-    sql_attr_timestamp = end_date
+	sql_attr_uint	     = main_deal_srl
+	sql_attr_uint	     = category_srl
+    sql_attr_str2ordinal = start_date
+    sql_attr_str2ordinal = end_date
 
 	sql_query_info	= SELECT deal_srl as id FROM deal WHERE deal_srl=$id
 }
@@ -674,7 +632,8 @@ index idx_deal_AV
 	docinfo			= extern
     charset_type    = utf-8
     charset_table   = 0..9, A..Z->a..z, _, a..z, U+AC00..U+D7A3, U+1100..U+1159, U+1161..U+11A2, U+11A8..U+11F9
-    min_word_len    = 0
+    min_word_len    = 1 
+    min_infix_len   = 2
     ngram_len       = 1
     ngram_chars     = U+AC00..U+D7A3
 }
@@ -686,7 +645,8 @@ index idx_deal_AV_partner
 	docinfo			= extern
     charset_type    = utf-8
     charset_table   = 0..9, A..Z->a..z, _, a..z, U+AC00..U+D7A3, U+1100..U+1159, U+1161..U+11A2, U+11A8..U+11F9
-    min_word_len    = 0
+    min_word_len    = 1
+    min_infix_len   = 2
     ngram_len       = 1
     ngram_chars     = U+AC00..U+D7A3
 }
@@ -698,7 +658,8 @@ index idx_deal_AV_WT
 	docinfo			= extern
     charset_type    = utf-8
     charset_table   = 0..9, A..Z->a..z, _, a..z, U+AC00..U+D7A3, U+1100..U+1159, U+1161..U+11A2, U+11A8..U+11F9
-    min_word_len    = 0
+    min_word_len    = 1
+    min_infix_len   = 2
     ngram_len       = 1
     ngram_chars     = U+AC00..U+D7A3
 }
@@ -710,7 +671,8 @@ index idx_deal_AV_WT_partner
 	docinfo			= extern
     charset_type    = utf-8
     charset_table   = 0..9, A..Z->a..z, _, a..z, U+AC00..U+D7A3, U+1100..U+1159, U+1161..U+11A2, U+11A8..U+11F9
-    min_word_len    = 0
+    min_word_len    = 1
+    min_infix_len   = 2
     ngram_len       = 1
     ngram_chars     = U+AC00..U+D7A3
 }
@@ -722,7 +684,8 @@ index idx_deal_RD
 	docinfo			= extern
     charset_type    = utf-8
     charset_table   = 0..9, A..Z->a..z, _, a..z, U+AC00..U+D7A3, U+1100..U+1159, U+1161..U+11A2, U+11A8..U+11F9
-    min_word_len    = 0
+    min_word_len    = 1
+    min_infix_len   = 2
     ngram_len       = 1
     ngram_chars     = U+AC00..U+D7A3
 }
@@ -734,7 +697,8 @@ index idx_deal_RD_partner
 	docinfo			= extern
     charset_type    = utf-8
     charset_table   = 0..9, A..Z->a..z, _, a..z, U+AC00..U+D7A3, U+1100..U+1159, U+1161..U+11A2, U+11A8..U+11F9
-    min_word_len    = 0
+    min_word_len    = 1
+    min_infix_len   = 2
     ngram_len       = 1
     ngram_chars     = U+AC00..U+D7A3
 }
@@ -746,7 +710,8 @@ index idx_deal_WT
 	docinfo			= extern
     charset_type    = utf-8
     charset_table   = 0..9, A..Z->a..z, _, a..z, U+AC00..U+D7A3, U+1100..U+1159, U+1161..U+11A2, U+11A8..U+11F9
-    min_word_len    = 0
+    min_word_len    = 1
+    min_infix_len   = 2
     ngram_len       = 1
     ngram_chars     = U+AC00..U+D7A3
 }
@@ -758,7 +723,8 @@ index idx_deal_WT_partner
 	docinfo			= extern
     charset_type    = utf-8
     charset_table   = 0..9, A..Z->a..z, _, a..z, U+AC00..U+D7A3, U+1100..U+1159, U+1161..U+11A2, U+11A8..U+11F9
-    min_word_len    = 0
+    min_word_len    = 1
+    min_infix_len   = 2
     ngram_len       = 1
     ngram_chars     = U+AC00..U+D7A3
 }
@@ -770,7 +736,8 @@ index idx_deal_RD_WT
 	docinfo			= extern
     charset_type    = utf-8
     charset_table   = 0..9, A..Z->a..z, _, a..z, U+AC00..U+D7A3, U+1100..U+1159, U+1161..U+11A2, U+11A8..U+11F9
-    min_word_len    = 0
+    min_word_len    = 1
+    min_infix_len   = 2
     ngram_len       = 1
     ngram_chars     = U+AC00..U+D7A3
 }
@@ -782,7 +749,8 @@ index idx_deal_RD_WT_partner
 	docinfo			= extern
     charset_type    = utf-8
     charset_table   = 0..9, A..Z->a..z, _, a..z, U+AC00..U+D7A3, U+1100..U+1159, U+1161..U+11A2, U+11A8..U+11F9
-    min_word_len    = 0
+    min_word_len    = 1
+    min_infix_len   = 2
     ngram_len       = 1
     ngram_chars     = U+AC00..U+D7A3
 }
@@ -794,7 +762,8 @@ index idx_deal_ED
 	docinfo			= extern
     charset_type    = utf-8
     charset_table   = 0..9, A..Z->a..z, _, a..z, U+AC00..U+D7A3, U+1100..U+1159, U+1161..U+11A2, U+11A8..U+11F9
-    min_word_len    = 0
+    min_word_len    = 1
+    min_infix_len   = 2
     ngram_len       = 1
     ngram_chars     = U+AC00..U+D7A3
 }
@@ -806,7 +775,8 @@ index idx_deal_ED_partner
 	docinfo			= extern
     charset_type    = utf-8
     charset_table   = 0..9, A..Z->a..z, _, a..z, U+AC00..U+D7A3, U+1100..U+1159, U+1161..U+11A2, U+11A8..U+11F9
-    min_word_len    = 0
+    min_word_len    = 1
+    min_infix_len   = 2
     ngram_len       = 1
     ngram_chars     = U+AC00..U+D7A3
 }
@@ -818,7 +788,8 @@ index idx_deal_TP
 	docinfo			= extern
     charset_type    = utf-8
     charset_table   = 0..9, A..Z->a..z, _, a..z, U+AC00..U+D7A3, U+1100..U+1159, U+1161..U+11A2, U+11A8..U+11F9
-    min_word_len    = 0
+    min_word_len    = 1
+    min_infix_len   = 2
     ngram_len       = 1
     ngram_chars     = U+AC00..U+D7A3
 }
@@ -830,7 +801,8 @@ index idx_deal_TP_partner
 	docinfo			= extern
     charset_type    = utf-8
     charset_table   = 0..9, A..Z->a..z, _, a..z, U+AC00..U+D7A3, U+1100..U+1159, U+1161..U+11A2, U+11A8..U+11F9
-    min_word_len    = 0
+    min_word_len    = 1
+    min_infix_len   = 2
     ngram_len       = 1
     ngram_chars     = U+AC00..U+D7A3
 }

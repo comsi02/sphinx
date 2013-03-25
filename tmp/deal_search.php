@@ -87,12 +87,16 @@ class Sphinx {
         }
 
         /* Sphinx filter range setting */
+        /*
         foreach($args['filter_range'] as $filter_range) {
             foreach($filter_range as $key => $values) {
                 print "$key -> $values[0] -> $values[1]\n";
                 $this->cl->SetFilterRange($key, $values[0], $values[1]);
             }
         }
+        */
+
+        $this->cl->SetFilterRange('start_date', 1363532400, 1364137200);
 
         /* Sphinx etc setting */
         if ($this->groupby)  $this->cl->SetGroupBy       ($args->groupby, SPH_GROUPBY_ATTR, $args->groupsort);
@@ -146,15 +150,15 @@ print "==================== Sphinx Prams Setting ============================\n"
 
 $args = array();
 #$args['host'] = 'comsi02.tmonc.net';
-$args['index'] = 'idx_deal_WT';
+#$args['index'] = 'idx_deal_WT';
 $args['offset'] = 1;
 $args['limit'] = 20;
 $args['filter'] = array();
 $args['filter_range'] = array();
-$args['query'] = "점";
+#$args['query'] = "_category_srl_1000";
 #array_push($args['filter'],array('main_category_srl' => array(1000)));
 #array_push($args['filter'],array('category_srl' => array(1120)));
-#array_push($args['filter_range'],array('start_date' => array(1362668400,1392668400)));
+array_push($args['filter_range'],array('start_date' => array(1362668400,1392668400)));
 
 print "==================== Sphinx Serarch Result ============================\n";
 
