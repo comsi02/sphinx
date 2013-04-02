@@ -2,6 +2,43 @@
 # Minimal Sphinx configuration sample (clean, simple, functional)
 #
 
+# deal table
+source deal
+{
+	type			= mysql
+
+	sql_host		= {DBHOST}
+	sql_user		= {USERID}
+	sql_pass		= {PASSWD}
+	sql_db			= {DATABASE}
+	sql_port		= 3306	# optional, default is 3306
+
+    sql_query_pre   = SET NAMES utf8
+
+	sql_query		= \
+                        SELECT \
+                            d.deal_srl AS id \
+                            , d.category_srl \
+                            , d.deal_type \
+                            , d.status_type \
+                            , d.delivery_type \
+                            , d.delivery_policy \
+                            , d.who_update \
+                        FROM deal d \
+                        WHERE d.deal_srl = d.main_deal_srl \
+
+	sql_attr_uint = category_srl
+	sql_field_string = deal_type
+	sql_field_string = status_type
+	sql_field_string = delivery_type
+	sql_field_string = delivery_policy
+	sql_field_string = who_update
+
+	sql_query_info	= SELECT deal_srl as id FROM deal WHERE deal_srl=$id
+}
+
+
+
 # 1-1. 티몬관리 > 진행중티몬 > 상품명검색
 source deal_AV
 {
@@ -16,30 +53,28 @@ source deal_AV
     sql_query_pre   = SET NAMES utf8
 
 	sql_query		= \
-                        SELECT /* query from sphinx deal_AV by comsi02 */ \
-                            x.main_deal_srl AS id \
-                            , x.main_deal_srl \
-                            , x.category_srl \
-                            , x.title \
-                            , CONCAT('_category_srl_',x.main_category_srl,';_catogory_srl_',x.category_srl) as _category_srl \
-                            , x.start_date \
-                            , x.end_date \
-                        FROM \
-                        ( \
-                            SELECT d.* , c.title AS category_title , gd.gmarket_item_no , c.main_category_srl \
-                            FROM deal d \
-                            INNER JOIN category c ON d.category_srl = c.category_srl \
-                            LEFT OUTER JOIN gmarket_deal gd ON d.main_deal_srl = gd.main_deal_srl AND d.deal_srl = gd.deal_srl \
-                            WHERE 1 \
-                            AND d.main_deal_srl = d.deal_srl \
-                            AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
-                            AND d.end_date > now() \
-                            AND d.start_date < now() \
-                            AND d.status_type='AV' \
-                        ) x \
+                        SELECT /* query from sphinx idx_deal_AV */ \
+                            d.deal_srl AS id \
+                            , d.deal_srl AS main_deal_srl \
+                            , d.category_srl \
+                            , d.title \
+                            , d.start_date \
+                            , d.end_date \
+                            , CONCAT('_category_srl_',(SELECT c.main_category_srl FROM category c WHERE c.category_srl = d.category_srl),';_catogory_srl_',d.category_srl) AS _category_srl \
+                            , (SELECT v.v_comname FROM ticketmonster.vender v WHERE d.partner_srl = v.v_no) AS v_comname \
+                        FROM deal d \
+                        WHERE 1 \
+                        AND d.main_deal_srl = d.deal_srl \
+                        AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
+                        AND d.is_pause = 'N' \
+                        /* 진행중 티몬 */ \
+                        AND d.end_date > now() \
+                        AND d.start_date < now() \
+                        AND d.status_type = 'AV' \
 
 	sql_attr_uint	     = main_deal_srl
 	sql_attr_uint	     = category_srl
+    sql_attr_string      = v_comname
     sql_attr_str2ordinal = start_date
     sql_attr_str2ordinal = end_date
 
@@ -60,31 +95,28 @@ source deal_AV_partner
     sql_query_pre   = SET NAMES utf8
 
 	sql_query		= \
-                        SELECT /* query from sphinx deal_AV_partner by comsi02 */ \
-                            x.main_deal_srl as id \
-                            , x.main_deal_srl \
-                            , x.category_srl \
-                            , v.v_comname \
-                            , CONCAT('_category_srl_',x.main_category_srl,';_catogory_srl_',x.category_srl) as _category_srl \
-                            , x.start_date \
-                            , x.end_date \
-                        FROM \
-                        ( \
-                            SELECT d.* , c.title as category_title , gd.gmarket_item_no , c.main_category_srl \
-                            FROM deal d \
-                            JOIN category c ON d.category_srl = c.category_srl \
-                            LEFT OUTER JOIN gmarket_deal gd ON d.main_deal_srl = gd.main_deal_srl AND d.deal_srl = gd.deal_srl \
-                            WHERE 1 \
-                            AND d.main_deal_srl = d.deal_srl \
-                            AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
-                            AND d.end_date > now() \
-                            AND d.start_date < now() \
-                            AND d.status_type='AV' \
-                        ) x \
-                        LEFT OUTER JOIN ticketmonster.vender v ON x.partner_srl = v.v_no \
+                        SELECT /* query from sphinx idx_deal_AV_partner */ \
+                            d.deal_srl AS id \
+                            , d.deal_srl AS main_deal_srl \
+                            , d.category_srl \
+                            , d.title \
+                            , d.start_date \
+                            , d.end_date \
+                            , CONCAT('_category_srl_',(SELECT c.main_category_srl FROM category c WHERE c.category_srl = d.category_srl),';_catogory_srl_',d.category_srl) AS _category_srl \
+                            , (SELECT v.v_comname FROM ticketmonster.vender v WHERE d.partner_srl = v.v_no) AS v_comname \
+                        FROM deal d \
+                        WHERE 1 \
+                        AND d.main_deal_srl = d.deal_srl \
+                        AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
+                        AND d.is_pause = 'N' \
+                        /* 진행중 티몬 */ \
+                        AND d.end_date > now() \
+                        AND d.start_date < now() \
+                        AND d.status_type = 'AV' \
                 
 	sql_attr_uint	     = main_deal_srl
 	sql_attr_uint	     = category_srl
+    sql_attr_string      = title
     sql_attr_str2ordinal = start_date
     sql_attr_str2ordinal = end_date
 
@@ -105,31 +137,29 @@ source deal_AV_WT
     sql_query_pre   = SET NAMES utf8
 
 	sql_query		= \
-                        SELECT /* query from sphinx deal_AV_WT by comsi02 */ \
-                            x.main_deal_srl AS id \
-                            , x.main_deal_srl \
-                            , x.category_srl \
-                            , x.title \
-                            , CONCAT('_category_srl_',x.main_category_srl,';_catogory_srl_',x.category_srl) as _category_srl \
-                            , x.start_date \
-                            , x.end_date \
-                        FROM \
-                        ( \
-                            SELECT d.* , c.title AS category_title , gd.gmarket_item_no , c.main_category_srl \
-                            FROM deal d \
-                            INNER JOIN category c ON d.category_srl = c.category_srl \
-                            LEFT OUTER JOIN gmarket_deal gd ON d.main_deal_srl = gd.main_deal_srl AND d.deal_srl = gd.deal_srl \
-                            WHERE 1 \
-                            AND d.main_deal_srl = d.deal_srl \
-                            AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
-                            AND d.end_date > now() \
-                            AND d.start_date < now() \
-                            AND d.status_type='AV' \
-                            AND EXISTS ( SELECT * FROM deal WHERE main_deal_srl = d.main_deal_srl AND status_type = 'WT' ) \
-                        ) x \
+                        SELECT /* query from sphinx idx_deal_AV_WT */ \
+                            d.deal_srl AS id \
+                            , d.deal_srl AS main_deal_srl \
+                            , d.category_srl \
+                            , d.title \
+                            , d.start_date \
+                            , d.end_date \
+                            , CONCAT('_category_srl_',(SELECT c.main_category_srl FROM category c WHERE c.category_srl = d.category_srl),';_catogory_srl_',d.category_srl) AS _category_srl \
+                            , (SELECT v.v_comname FROM ticketmonster.vender v WHERE d.partner_srl = v.v_no) AS v_comname \
+                        FROM deal d \
+                        WHERE 1 \
+                        AND d.main_deal_srl = d.deal_srl \
+                        AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
+                        AND d.is_pause = 'N' \
+                        /* 진행중티몬(판매대기) */ \
+                        AND d.end_date > now() \
+                        AND d.start_date < now() \
+                        AND d.status_type='AV' \
+                        AND EXISTS ( SELECT * FROM deal WHERE main_deal_srl = d.main_deal_srl AND status_type = 'WT' ) \
 
 	sql_attr_uint	     = main_deal_srl
 	sql_attr_uint	     = category_srl
+    sql_attr_string      = v_comname
     sql_attr_str2ordinal = start_date
     sql_attr_str2ordinal = end_date
 
@@ -150,32 +180,29 @@ source deal_AV_WT_partner
     sql_query_pre   = SET NAMES utf8
 
 	sql_query		= \
-                        SELECT /* query from sphinx deal_AV_WT by comsi02 */ \
-                            x.main_deal_srl AS id \
-                            , x.main_deal_srl \
-                            , x.category_srl \
-                            , v.v_comname \
-                            , CONCAT('_category_srl_',x.main_category_srl,';_catogory_srl_',x.category_srl) as _category_srl \
-                            , x.start_date \
-                            , x.end_date \
-                        FROM \
-                        ( \
-                            SELECT d.* , c.title AS category_title , gd.gmarket_item_no , c.main_category_srl \
-                            FROM deal d \
-                            INNER JOIN category c ON d.category_srl = c.category_srl \
-                            LEFT OUTER JOIN gmarket_deal gd ON d.main_deal_srl = gd.main_deal_srl AND d.deal_srl = gd.deal_srl \
-                            WHERE 1 \
-                            AND d.main_deal_srl = d.deal_srl \
-                            AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
-                            AND d.end_date > now() \
-                            AND d.start_date < now() \
-                            AND d.status_type='AV' \
-                            AND EXISTS ( SELECT * FROM deal WHERE main_deal_srl = d.main_deal_srl AND status_type = 'WT' ) \
-                        ) x \
-                        LEFT OUTER JOIN ticketmonster.vender v ON x.partner_srl = v.v_no
+                        SELECT /* query from sphinx idx_deal_AV_WT_partner */ \
+                            d.deal_srl AS id \
+                            , d.deal_srl AS main_deal_srl \
+                            , d.category_srl \
+                            , d.title \
+                            , d.start_date \
+                            , d.end_date \
+                            , CONCAT('_category_srl_',(SELECT c.main_category_srl FROM category c WHERE c.category_srl = d.category_srl),';_catogory_srl_',d.category_srl) AS _category_srl \
+                            , (SELECT v.v_comname FROM ticketmonster.vender v WHERE d.partner_srl = v.v_no) AS v_comname \
+                        FROM deal d \
+                        WHERE 1 \
+                        AND d.main_deal_srl = d.deal_srl \
+                        AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
+                        AND d.is_pause = 'N' \
+                        /* 진행중티몬(판매대기) */ \
+                        AND d.end_date > now() \
+                        AND d.start_date < now() \
+                        AND d.status_type='AV' \
+                        AND EXISTS ( SELECT * FROM deal WHERE main_deal_srl = d.main_deal_srl AND status_type = 'WT' ) \
                         
 	sql_attr_uint	     = main_deal_srl
 	sql_attr_uint	     = category_srl
+    sql_attr_string      = title
     sql_attr_str2ordinal = start_date
     sql_attr_str2ordinal = end_date
 
@@ -196,30 +223,28 @@ source deal_RD
     sql_query_pre   = SET NAMES utf8
 
 	sql_query		= \
-                        SELECT /* query from sphinx deal_RD by comsi02 */ \
-                            x.main_deal_srl as id \
-                            , x.main_deal_srl \
-                            , x.category_srl \
-                            , x.title \
-                            , CONCAT('_category_srl_',x.main_category_srl,';_catogory_srl_',x.category_srl) as _category_srl \
-                            , x.start_date \
-                            , x.end_date \
-                        FROM \
-                        ( \
-                            SELECT d.* , c.title AS category_title , gd.gmarket_item_no , c.main_category_srl \
-                            FROM deal d \
-                            INNER JOIN category c ON d.category_srl = c.category_srl \
-                            LEFT OUTER JOIN gmarket_deal gd ON d.main_deal_srl = gd.main_deal_srl AND d.deal_srl = gd.deal_srl \
-                            WHERE 1 \
-                            AND d.main_deal_srl = d.deal_srl \
-                            AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
-                            AND d.end_date > now() \
-                            AND d.start_date > now() \
-                            AND d.status_type='AV' \
-                        ) x \
+                        SELECT /* query from sphinx idx_deal_RD */ \
+                            d.deal_srl AS id \
+                            , d.deal_srl AS main_deal_srl \
+                            , d.category_srl \
+                            , d.title \
+                            , d.start_date \
+                            , d.end_date \
+                            , CONCAT('_category_srl_',(SELECT c.main_category_srl FROM category c WHERE c.category_srl = d.category_srl),';_catogory_srl_',d.category_srl) AS _category_srl \
+                            , (SELECT v.v_comname FROM ticketmonster.vender v WHERE d.partner_srl = v.v_no) AS v_comname \
+                        FROM deal d \
+                        WHERE 1 \
+                        AND d.main_deal_srl = d.deal_srl \
+                        AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
+                        AND d.is_pause = 'N' \
+                        /* 진행 예정 티몬 */ \
+                        AND d.end_date > now() \
+                        AND d.start_date > now() \
+                        AND d.status_type='AV' \
 
 	sql_attr_uint	     = main_deal_srl
 	sql_attr_uint	     = category_srl
+	sql_attr_string      = v_comname
     sql_attr_str2ordinal = start_date
     sql_attr_str2ordinal = end_date
 
@@ -240,32 +265,28 @@ source deal_RD_partner
     sql_query_pre   = SET NAMES utf8
 
 	sql_query		= \
-                        SELECT /* query from sphinx deal_RD_partner by comsi02 */ \
-                            x.main_deal_srl AS id \
-                            , x.main_deal_srl \
-                            , x.category_srl \
-                            , v.v_comname \
-                            , CONCAT('_category_srl_',x.main_category_srl,';_catogory_srl_',x.category_srl) as _category_srl \
-                            , x.start_date \
-                            , x.end_date \
-                        FROM \
-                        ( \
-                            SELECT d.* , c.title AS category_title , gd.gmarket_item_no , c.main_category_srl \
-                            FROM deal d \
-                            INNER JOIN category c ON d.category_srl = c.category_srl \
-                            LEFT OUTER JOIN gmarket_deal gd ON d.main_deal_srl = gd.main_deal_srl AND d.deal_srl = gd.deal_srl \
-                            WHERE 1 \
-                            AND d.main_deal_srl = d.deal_srl \
-                            AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
-                            AND d.end_date > now() \
-                            AND d.start_date > now() \
-                            AND d.status_type='AV' \
-                        ) x \
-                        LEFT OUTER JOIN ticketmonster.vender v ON x.partner_srl = v.v_no \
-
+                        SELECT /* query from sphinx idx_deal_RD_partner */ \
+                            d.deal_srl AS id \
+                            , d.deal_srl AS main_deal_srl \
+                            , d.category_srl \
+                            , d.title \
+                            , d.start_date \
+                            , d.end_date \
+                            , CONCAT('_category_srl_',(SELECT c.main_category_srl FROM category c WHERE c.category_srl = d.category_srl),';_catogory_srl_',d.category_srl) AS _category_srl \
+                            , (SELECT v.v_comname FROM ticketmonster.vender v WHERE d.partner_srl = v.v_no) AS v_comname \
+                        FROM deal d \
+                        WHERE 1 \
+                        AND d.main_deal_srl = d.deal_srl \
+                        AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
+                        AND d.is_pause = 'N' \
+                        /* 진행 예정 티몬 */ \
+                        AND d.end_date > now() \
+                        AND d.start_date > now() \
+                        AND d.status_type='AV' \
 
 	sql_attr_uint	     = main_deal_srl
 	sql_attr_uint	     = category_srl
+    sql_attr_string      = title
     sql_attr_str2ordinal = start_date
     sql_attr_str2ordinal = end_date
 
@@ -286,30 +307,28 @@ source deal_WT
     sql_query_pre   = SET NAMES utf8
 
 	sql_query		= \
-                        SELECT /* query from sphinx deal_WT by comsi02 */ \
-                            x.main_deal_srl AS id \
-                            , x.main_deal_srl \
-                            , x.category_srl \
-                            , x.title \
-                            , CONCAT('_category_srl_',x.main_category_srl,';_catogory_srl_',x.category_srl) as _category_srl \
-                            , x.start_date \
-                            , x.end_date \
-                            , UNIX_TIMESTAMP(x.start_date) as range_start_date \
-                            , UNIX_TIMESTAMP(x.end_date) as range_end_date \
-                        FROM \
-                        ( \
-                            SELECT d.* , c.title AS category_title , gd.gmarket_item_no , c.main_category_srl \
-                            FROM deal d \
-                            INNER JOIN category c ON d.category_srl = c.category_srl \
-                            LEFT OUTER JOIN gmarket_deal gd ON d.main_deal_srl = gd.main_deal_srl AND d.deal_srl = gd.deal_srl \
-                            WHERE 1 \
-                            AND d.main_deal_srl = d.deal_srl \
-                            AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
-                            AND d.status_type='WT' \
-                        ) x \
+                        SELECT /* query from sphinx idx_deal_WT */ \
+                            d.deal_srl AS id \
+                            , d.deal_srl AS main_deal_srl \
+                            , d.category_srl \
+                            , d.title \
+                            , d.start_date \
+                            , d.end_date \
+                            , CONCAT('_category_srl_',(SELECT c.main_category_srl FROM category c WHERE c.category_srl = d.category_srl),';_catogory_srl_',d.category_srl) AS _category_srl \
+                            , (SELECT v.v_comname FROM ticketmonster.vender v WHERE d.partner_srl = v.v_no) AS v_comname \
+                            , UNIX_TIMESTAMP(d.start_date) AS range_start_date \
+                            , UNIX_TIMESTAMP(d.end_date) AS range_end_date \
+                        FROM deal d \
+                        WHERE 1 \
+                        AND d.main_deal_srl = d.deal_srl \
+                        AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
+                        AND d.is_pause = 'N' \
+                        /* 컨펌 대기중 티몬 */ \
+                        AND d.status_type='WT' \
 
 	sql_attr_uint	     = main_deal_srl
 	sql_attr_uint	     = category_srl
+    sql_attr_string      = v_comname
     sql_attr_str2ordinal = start_date
     sql_attr_str2ordinal = end_date
     sql_attr_timestamp   = range_start_date
@@ -332,31 +351,28 @@ source deal_WT_partner
     sql_query_pre   = SET NAMES utf8
 
 	sql_query		= \
-                        SELECT /* query from sphinx deal_WT_partner by comsi02 */ \
-                            x.main_deal_srl AS id \
-                            , x.main_deal_srl \
-                            , x.category_srl \
-                            , v.v_comname \
-                            , CONCAT('_category_srl_',x.main_category_srl,';_catogory_srl_',x.category_srl) as _category_srl \
-                            , x.start_date \
-                            , x.end_date \
-                            , UNIX_TIMESTAMP(x.start_date) as range_start_date \
-                            , UNIX_TIMESTAMP(x.end_date) as range_end_date \
-                        FROM \
-                        ( \
-                            SELECT d.* , c.title AS category_title , gd.gmarket_item_no , c.main_category_srl \
-                            FROM deal d \
-                            INNER JOIN category c ON d.category_srl = c.category_srl \
-                            LEFT OUTER JOIN gmarket_deal gd ON d.main_deal_srl = gd.main_deal_srl AND d.deal_srl = gd.deal_srl \
-                            WHERE 1 \
-                            AND d.main_deal_srl = d.deal_srl \
-                            AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
-                            AND d.status_type='WT' \
-                        ) x \
-                        LEFT OUTER JOIN ticketmonster.vender v ON x.partner_srl = v.v_no \
+                        SELECT /* query from sphinx idx_deal_WT_partner */ \
+                            d.deal_srl AS id \
+                            , d.deal_srl AS main_deal_srl \
+                            , d.category_srl \
+                            , d.title \
+                            , d.start_date \
+                            , d.end_date \
+                            , CONCAT('_category_srl_',(SELECT c.main_category_srl FROM category c WHERE c.category_srl = d.category_srl),';_catogory_srl_',d.category_srl) AS _category_srl \
+                            , (SELECT v.v_comname FROM ticketmonster.vender v WHERE d.partner_srl = v.v_no) AS v_comname \
+                            , UNIX_TIMESTAMP(d.start_date) AS range_start_date \
+                            , UNIX_TIMESTAMP(d.end_date) AS range_end_date \
+                        FROM deal d \
+                        WHERE 1 \
+                        AND d.main_deal_srl = d.deal_srl \
+                        AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
+                        AND d.is_pause = 'N' \
+                        /* 컨펌 대기중 티몬 */ \
+                        AND d.status_type='WT' \
 
 	sql_attr_uint	     = main_deal_srl
 	sql_attr_uint	     = category_srl
+    sql_attr_string      = title
     sql_attr_str2ordinal = start_date
     sql_attr_str2ordinal = end_date
     sql_attr_timestamp   = range_start_date
@@ -379,31 +395,29 @@ source deal_RD_WT
     sql_query_pre   = SET NAMES utf8
 
 	sql_query		= \
-                        SELECT /* query from sphinx deal_RD_WT by comsi02 */ \
-                            x.main_deal_srl AS id \
-                            , x.main_deal_srl \
-                            , x.category_srl \
-                            , x.title \
-                            , CONCAT('_category_srl_',x.main_category_srl,';_catogory_srl_',x.category_srl) as _category_srl \
-                            , x.start_date \
-                            , x.end_date \
-                        FROM \
-                        ( \
-                            SELECT d.* , c.title AS category_title , gd.gmarket_item_no , c.main_category_srl \
-                            FROM deal d \
-                            INNER JOIN category c ON d.category_srl = c.category_srl \
-                            LEFT OUTER JOIN gmarket_deal gd ON d.main_deal_srl = gd.main_deal_srl AND d.deal_srl = gd.deal_srl \
-                            WHERE 1 \
-                            AND d.main_deal_srl = d.deal_srl \
-                            AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
-                            AND d.end_date > now() \
-                            AND d.start_date > now() \
-                            AND d.status_type='AV' \
-                            AND EXISTS ( SELECT * FROM deal WHERE main_deal_srl = d.main_deal_srl AND status_type = 'WT' ) \
-                        ) x \
+                        SELECT /* query from sphinx idx_deal_RD_WT */ \
+                            d.deal_srl AS id \
+                            , d.deal_srl AS main_deal_srl \
+                            , d.category_srl \
+                            , d.title \
+                            , d.start_date \
+                            , d.end_date \
+                            , CONCAT('_category_srl_',(SELECT c.main_category_srl FROM category c WHERE c.category_srl = d.category_srl),';_catogory_srl_',d.category_srl) AS _category_srl \
+                            , (SELECT v.v_comname FROM ticketmonster.vender v WHERE d.partner_srl = v.v_no) AS v_comname \
+                        FROM deal d \
+                        WHERE 1 \
+                        AND d.main_deal_srl = d.deal_srl \
+                        AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
+                        AND d.is_pause = 'N' \
+                        /* 옵션 컨펌 대기중 티몬 */ \
+                        AND d.end_date > now() \
+                        AND d.start_date > now() \
+                        AND d.status_type='AV' \
+                        AND EXISTS ( SELECT * FROM deal WHERE main_deal_srl = d.main_deal_srl AND status_type = 'WT' ) \
 
 	sql_attr_uint	     = main_deal_srl
 	sql_attr_uint	     = category_srl
+	sql_attr_string      = v_comname
     sql_attr_str2ordinal = start_date
     sql_attr_str2ordinal = end_date
 
@@ -424,32 +438,29 @@ source deal_RD_WT_partner
     sql_query_pre   = SET NAMES utf8
 
 	sql_query		= \
-                        SELECT /* query from sphinx deal_RD_WT_partner by comsi02 */ \
-                            x.main_deal_srl as id \
-                            , x.main_deal_srl \
-                            , x.category_srl \
-                            , v.v_comname \
-                            , CONCAT('_category_srl_',x.main_category_srl,';_catogory_srl_',x.category_srl) as _category_srl \
-                            , x.start_date \
-                            , x.end_date \
-                        FROM \
-                        ( \
-                            SELECT d.* , c.title AS category_title , gd.gmarket_item_no , c.main_category_srl \
-                            FROM deal d \
-                            INNER JOIN category c ON d.category_srl = c.category_srl \
-                            LEFT OUTER JOIN gmarket_deal gd ON d.main_deal_srl = gd.main_deal_srl AND d.deal_srl = gd.deal_srl \
-                            WHERE 1 \
-                            AND d.main_deal_srl = d.deal_srl \
-                            AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
-                            AND d.end_date > now() \
-                            AND d.start_date > now() \
-                            AND d.status_type='AV' \
-                            AND EXISTS ( SELECT * FROM deal WHERE main_deal_srl = d.main_deal_srl AND status_type = 'WT' ) \
-                        ) x \
-                        LEFT OUTER JOIN ticketmonster.vender v ON x.partner_srl = v.v_no \
+                        SELECT /* query from sphinx idx_deal_RD_WT_partner */ \
+                            d.deal_srl AS id \
+                            , d.deal_srl AS main_deal_srl \
+                            , d.category_srl \
+                            , d.title \
+                            , d.start_date \
+                            , d.end_date \
+                            , CONCAT('_category_srl_',(SELECT c.main_category_srl FROM category c WHERE c.category_srl = d.category_srl),';_catogory_srl_',d.category_srl) AS _category_srl \
+                            , (SELECT v.v_comname FROM ticketmonster.vender v WHERE d.partner_srl = v.v_no) AS v_comname \
+                        FROM deal d \
+                        WHERE 1 \
+                        AND d.main_deal_srl = d.deal_srl \
+                        AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
+                        AND d.is_pause = 'N' \
+                        /* 옵션 컨펌 대기중 티몬 */ \
+                        AND d.end_date > now() \
+                        AND d.start_date > now() \
+                        AND d.status_type='AV' \
+                        AND EXISTS ( SELECT * FROM deal WHERE main_deal_srl = d.main_deal_srl AND status_type = 'WT' ) \
 
 	sql_attr_uint	     = main_deal_srl
 	sql_attr_uint	     = category_srl
+	sql_attr_string      = title
     sql_attr_str2ordinal = start_date
     sql_attr_str2ordinal = end_date
 
@@ -470,30 +481,31 @@ source deal_ED
     sql_query_pre   = SET NAMES utf8
 
 	sql_query		= \
-                        SELECT /* query from sphinx deal_ED by comsi02 */ \
-                            x.main_deal_srl AS id \
-                            , x.main_deal_srl \
-                            , x.category_srl \
-                            , x.title \
-                            , CONCAT('_category_srl_',x.main_category_srl,';_catogory_srl_',x.category_srl) as _category_srl \
-                            , x.start_date \
-                            , x.end_date \
-                        FROM \
-                        ( \
-                            SELECT d.* , c.title AS category_title , gd.gmarket_item_no , c.main_category_srl \
-                            FROM deal d \
-                            INNER JOIN category c ON d.category_srl = c.category_srl \
-                            LEFT OUTER JOIN gmarket_deal gd ON d.main_deal_srl = gd.main_deal_srl AND d.deal_srl = gd.deal_srl \
-                            WHERE 1 \
-                            AND d.main_deal_srl = d.deal_srl \
-                            AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
-                            AND ((d.end_date < now() AND d.status_type IN ('HD','DN','AV') ) OR d.status_type='HD' OR d.status_type='DN') \
-                        ) x \
+                        SELECT /* query from sphinx idx_deal_ED */ \
+                            d.deal_srl AS id \
+                            , d.deal_srl AS main_deal_srl \
+                            , d.category_srl \
+                            , d.title \
+                            , d.start_date \
+                            , d.end_date \
+                            , CONCAT('_category_srl_',(SELECT c.main_category_srl FROM category c WHERE c.category_srl = d.category_srl),';_catogory_srl_',d.category_srl) AS _category_srl \
+                            , (SELECT v.v_comname FROM ticketmonster.vender v WHERE d.partner_srl = v.v_no) AS v_comname \
+                        FROM deal d \
+                        WHERE 1 \
+                        AND d.main_deal_srl = d.deal_srl \
+                        AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
+                        AND d.is_pause = 'N' \
+                        /* 종료된 티몬 */ \
+                        AND ((d.end_date < now() AND d.status_type IN ('HD','DN','AV') ) OR d.status_type='HD' OR d.status_type='DN') \
 
 	sql_attr_uint	     = main_deal_srl
 	sql_attr_uint	     = category_srl
+    sql_attr_string      = v_comname
     sql_attr_str2ordinal = start_date
     sql_attr_str2ordinal = end_date
+
+                            #, CONCAT('_category_srl_',x.main_category_srl,';_catogory_srl_',x.category_srl) as _category_srl \
+                                #, (select c.main_category_srl from category c where c.category_srl = d.category_srl) as main_category_srl \
 
 	sql_query_info	= SELECT deal_srl as id FROM deal WHERE deal_srl=$id
 }
@@ -512,29 +524,26 @@ source deal_ED_partner
     sql_query_pre   = SET NAMES utf8
 
 	sql_query		= \
-                        SELECT /* query from sphinx deal_ED_partnet by comsi02 */ \
-                            x.main_deal_srl AS id \
-                            , x.main_deal_srl \
-                            , x.category_srl \
-                            , v.v_comname \
-                            , CONCAT('_category_srl_',x.main_category_srl,';_catogory_srl_',x.category_srl) as _category_srl \
-                            , x.start_date \
-                            , x.end_date \
-                        FROM \
-                        ( \
-                            SELECT d.* , c.title AS category_title , gd.gmarket_item_no , c.main_category_srl \
-                            FROM deal d \
-                            INNER JOIN category c ON d.category_srl = c.category_srl \
-                            LEFT OUTER JOIN gmarket_deal gd ON d.main_deal_srl = gd.main_deal_srl AND d.deal_srl = gd.deal_srl \
-                            WHERE 1 \
-                            AND d.main_deal_srl = d.deal_srl \
-                            AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
-                            AND ((d.end_date < now() and d.status_type IN ('HD','DN','AV') ) OR d.status_type='HD' OR d.status_type='DN') \
-                        ) x \
-                        LEFT OUTER JOIN ticketmonster.vender v ON x.partner_srl = v.v_no \
+                        SELECT /* query from sphinx idx_deal_ED_partner */ \
+                            d.deal_srl AS id \
+                            , d.deal_srl AS main_deal_srl \
+                            , d.category_srl \
+                            , d.title \
+                            , d.start_date \
+                            , d.end_date \
+                            , CONCAT('_category_srl_',(SELECT c.main_category_srl FROM category c WHERE c.category_srl = d.category_srl),';_catogory_srl_',d.category_srl) AS _category_srl \
+                            , (SELECT v.v_comname FROM ticketmonster.vender v WHERE d.partner_srl = v.v_no) AS v_comname \
+                        FROM deal d \
+                        WHERE 1 \
+                        AND d.main_deal_srl = d.deal_srl \
+                        AND d.deal_from IN ('migration', 'admin', 'salesforce' ) \
+                        AND d.is_pause = 'N' \
+                        /* 종료된 티몬 */ \
+                        AND ((d.end_date < now() AND d.status_type IN ('HD','DN','AV') ) OR d.status_type='HD' OR d.status_type='DN') \
 
 	sql_attr_uint	     = main_deal_srl
 	sql_attr_uint	     = category_srl
+    sql_attr_string      = title
     sql_attr_str2ordinal = start_date
     sql_attr_str2ordinal = end_date
 
@@ -555,26 +564,26 @@ source deal_TP
     sql_query_pre   = SET NAMES utf8
 
 	sql_query		= \
-                        SELECT \
-                            d.main_deal_srl AS id \
-                            , d.main_deal_srl \
-                            , c.category_srl \
+                        SELECT /* query from sphinx idx_deal_TP */ \
+                            d.deal_srl AS id \
+                            , d.deal_srl AS main_deal_srl \
+                            , d.category_srl \
                             , d.title \
-                            , CONCAT('_category_srl_',c.main_category_srl,';_catogory_srl_',c.category_srl) as _category_srl \
+                            , CONCAT('_category_srl_',(SELECT c.main_category_srl FROM category c WHERE c.category_srl = d.category_srl),';_catogory_srl_',d.category_srl) AS _category_srl \
+                            , (SELECT v.v_comname FROM ticketmonster.vender v WHERE d.partner_srl = v.v_no) AS v_comname \
                             , d.create_date \
                         FROM \
                         ( \
-                            SELECT d.* , dp.created_at as create_date \
-                            FROM deal_pause dp inner JOIN deal d ON d.main_deal_srl = d.deal_srl AND dp.deal_srl = d.deal_srl \
-                            WHERE 1 \
-                            AND d.is_pause = 'Y' \
+                            SELECT d.* , dp.created_at AS create_date \
+                            FROM deal_pause dp INNER JOIN deal d ON d.main_deal_srl = d.deal_srl AND dp.deal_srl = d.deal_srl \
+                            WHERE d.is_pause = 'Y' \
                             ORDER BY dp.created_at desc \
                         ) d \
-                        INNER JOIN category c ON d.category_srl = c.category_srl \
                         GROUP BY d.deal_srl \
 
 	sql_attr_uint	     = main_deal_srl
 	sql_attr_uint	     = category_srl
+    sql_attr_string      = v_comname
     sql_attr_str2ordinal = create_date
 
 	sql_query_info	= SELECT deal_srl as id FROM deal WHERE deal_srl=$id
@@ -594,27 +603,26 @@ source deal_TP_partner
     sql_query_pre   = SET NAMES utf8
 
 	sql_query		= \
-                        SELECT \
-                            d.main_deal_srl AS id \
-                            , d.main_deal_srl \
-                            , c.category_srl \
-                            , v.v_comname \
-                            , CONCAT('_category_srl_',c.main_category_srl,';_catogory_srl_',c.category_srl) as _category_srl \
+                        SELECT /* query from sphinx idx_deal_TP_partner */ \
+                            d.deal_srl AS id \
+                            , d.deal_srl AS main_deal_srl \
+                            , d.category_srl \
+                            , d.title \
+                            , CONCAT('_category_srl_',(SELECT c.main_category_srl FROM category c WHERE c.category_srl = d.category_srl),';_catogory_srl_',d.category_srl) AS _category_srl \
+                            , (SELECT v.v_comname FROM ticketmonster.vender v WHERE d.partner_srl = v.v_no) AS v_comname \
                             , d.create_date \
                         FROM \
                         ( \
-                            SELECT d.* , dp.created_at AS create_date \
-                            FROM deal_pause dp inner JOIN deal d ON d.main_deal_srl = d.deal_srl AND dp.deal_srl = d.deal_srl \
-                            WHERE 1 \
-                            AND d.is_pause = 'Y' \
+                            SELECT d.* , dp.created_at as create_date \
+                            FROM deal_pause dp INNER JOIN deal d ON d.main_deal_srl = d.deal_srl AND dp.deal_srl = d.deal_srl \
+                            WHERE d.is_pause = 'Y' \
                             ORDER BY dp.created_at desc \
                         ) d \
-                        INNER JOIN category c ON d.category_srl = c.category_srl \
-                        LEFT OUTER JOIN ticketmonster.vender v ON d.partner_srl = v.v_no \
                         GROUP BY d.deal_srl \
 
 	sql_attr_uint	     = main_deal_srl
 	sql_attr_uint	     = category_srl
+    sql_attr_string      = title
     sql_attr_str2ordinal = create_date
 
 	sql_query_info	= SELECT deal_srl as id FROM deal WHERE deal_srl=$id
@@ -793,6 +801,19 @@ index idx_deal_TP_partner
 {
 	source			= deal_TP_partner
 	path			= /home/TMON/comsi02/work/sphinx/var/data/idx_deal_TP_partner
+	docinfo			= extern
+    charset_type    = utf-8
+    charset_table   = 0..9, A..Z->a..z, _, a..z, U+AC00..U+D7A3, U+1100..U+1159, U+1161..U+11A2, U+11A8..U+11F9
+    min_word_len    = 1
+    min_infix_len   = 2
+    ngram_len       = 1
+    ngram_chars     = U+AC00..U+D7A3
+}
+
+index idx_deal
+{
+	source			= deal
+	path			= /home/TMON/comsi02/work/sphinx/var/data/idx_deal
 	docinfo			= extern
     charset_type    = utf-8
     charset_table   = 0..9, A..Z->a..z, _, a..z, U+AC00..U+D7A3, U+1100..U+1159, U+1161..U+11A2, U+11A8..U+11F9
